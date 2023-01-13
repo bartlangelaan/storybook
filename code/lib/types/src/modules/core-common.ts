@@ -167,10 +167,10 @@ export interface CLIOptions {
 
 export interface BuilderOptions {
   configType?: 'DEVELOPMENT' | 'PRODUCTION';
-  ignorePreview: boolean;
-  cache: FileSystemCache;
+  ignorePreview?: boolean;
+  cache?: FileSystemCache;
   configDir: string;
-  docsMode: boolean;
+  docsMode?: boolean;
   features?: StorybookConfig['features'];
   versionCheck?: VersionCheck;
   releaseNotesData?: ReleaseNotesData;
