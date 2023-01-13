@@ -22,7 +22,6 @@ export class RendererFactory {
     const renderType = getRenderType(targetDOMNode);
     // keep only instances of the same type
     if (this.lastRenderType && this.lastRenderType !== renderType) {
-      await AbstractRenderer.resetPlatformBrowserDynamic();
       clearRootHTMLElement(renderType);
       this.rendererMap.clear();
     }
