@@ -73,7 +73,7 @@ export class StoryRender<TRenderer extends Renderer> implements Render<TRenderer
     private callbacks: RenderContextCallbacks<TRenderer>,
     public id: StoryId,
     public viewMode: ViewMode,
-    public renderOptions: StoryRenderOptions = { autoplay: true },
+    public renderOptions: StoryRenderOptions = { autoplay: true, ignoreArgsUpdates: false },
     story?: PreparedStory<TRenderer>
   ) {
     this.abortController = new AbortController();
@@ -154,8 +154,17 @@ export class StoryRender<TRenderer extends Renderer> implements Render<TRenderer
     if (!this.story) throw new Error('cannot render when not prepared');
     if (!canvasElement) throw new Error('cannot render when canvasElement is unset');
 
-    const { id, componentId, title, name, tags, applyLoaders, unboundStoryFn, playFunction } =
-      this.story;
+    const {
+      id,
+      componentId,
+      title,
+      name,
+      tags,
+      applyLoaders,
+      unboundStoryFn,
+      playFunction,
+      initialArgs,
+    } = this.story;
 
     if (forceRemount && !initial) {
       // NOTE: we don't check the cancel actually worked here, so the previous
@@ -174,6 +183,7 @@ export class StoryRender<TRenderer extends Renderer> implements Render<TRenderer
       await this.runPhase(abortSignal, 'loading', async () => {
         loadedContext = await applyLoaders({
           ...this.storyContext(),
+          ...(this.renderOptions.ignoreArgsUpdates && { args: initialArgs }),
           viewMode: this.viewMode,
         } as StoryContextForLoaders<TRenderer>);
       });
@@ -186,6 +196,7 @@ export class StoryRender<TRenderer extends Renderer> implements Render<TRenderer
         // By this stage, it is possible that new args/globals have been received for this story
         // and we need to ensure we render it with the new values
         ...this.storyContext(),
+        ...(this.renderOptions.ignoreArgsUpdates && { args: initialArgs }),
         abortSignal,
         // We should consider parameterizing the story types with TRenderer['canvasElement'] in the future
         canvasElement: canvasElement as any,
